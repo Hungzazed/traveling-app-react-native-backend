@@ -1,4 +1,5 @@
-import mongoose from "mongoose";
+const mongoose = require('mongoose');
+const { toJSON, paginate } = require('./plugins');
 
 const hotelSchema = new mongoose.Schema(
   {
@@ -18,4 +19,8 @@ const hotelSchema = new mongoose.Schema(
   { timestamps: true }
 );
 
-export default mongoose.model("Hotel", hotelSchema);
+// add plugin that converts mongoose to json
+hotelSchema.plugin(toJSON);
+hotelSchema.plugin(paginate);
+
+module.exports = mongoose.model('Hotel', hotelSchema);

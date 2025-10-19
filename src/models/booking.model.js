@@ -1,4 +1,5 @@
-import mongoose from "mongoose";
+const mongoose = require('mongoose');
+const { toJSON, paginate } = require('./plugins');
 
 const bookingSchema = new mongoose.Schema(
   {
@@ -24,4 +25,8 @@ const bookingSchema = new mongoose.Schema(
   { timestamps: true }
 );
 
-export default mongoose.model("Booking", bookingSchema);
+// add plugin that converts mongoose to json
+bookingSchema.plugin(toJSON);
+bookingSchema.plugin(paginate);
+
+module.exports = mongoose.model('Booking', bookingSchema);

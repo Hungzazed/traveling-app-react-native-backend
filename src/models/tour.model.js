@@ -1,4 +1,5 @@
-import mongoose from "mongoose";
+const mongoose = require('mongoose');
+const { toJSON, paginate } = require('./plugins');
 
 const itinerarySchema = new mongoose.Schema({
   day: Number,
@@ -20,4 +21,8 @@ const tourSchema = new mongoose.Schema(
   { timestamps: true }
 );
 
-export default mongoose.model("Tour", tourSchema);
+// add plugin that converts mongoose to json
+tourSchema.plugin(toJSON);
+tourSchema.plugin(paginate);
+
+module.exports = mongoose.model('Tour', tourSchema);

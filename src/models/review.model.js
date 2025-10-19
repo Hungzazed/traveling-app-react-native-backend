@@ -1,4 +1,5 @@
-import mongoose from "mongoose";
+const mongoose = require('mongoose');
+const { toJSON, paginate } = require('./plugins');
 
 const reviewSchema = new mongoose.Schema(
   {
@@ -11,4 +12,8 @@ const reviewSchema = new mongoose.Schema(
   { timestamps: true }
 );
 
-export default mongoose.model("Review", reviewSchema);
+// add plugin that converts mongoose to json
+reviewSchema.plugin(toJSON);
+reviewSchema.plugin(paginate);
+
+module.exports = mongoose.model('Review', reviewSchema);

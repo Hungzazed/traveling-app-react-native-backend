@@ -1,4 +1,5 @@
-import mongoose from "mongoose";
+const mongoose = require('mongoose');
+const { toJSON, paginate } = require('./plugins');
 
 const serviceSchema = new mongoose.Schema(
   {
@@ -14,4 +15,8 @@ const serviceSchema = new mongoose.Schema(
   { timestamps: true }
 );
 
-export default mongoose.model("Service", serviceSchema);
+// add plugin that converts mongoose to json
+serviceSchema.plugin(toJSON);
+serviceSchema.plugin(paginate);
+
+module.exports = mongoose.model('Service', serviceSchema);

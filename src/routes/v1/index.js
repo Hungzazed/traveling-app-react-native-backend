@@ -1,6 +1,11 @@
 const express = require('express');
 const authRoute = require('./auth.route');
 const userRoute = require('./user.route');
+const tourRoute = require('./tour.route');
+const hotelRoute = require('./hotel.route');
+const bookingRoute = require('./booking.route');
+const reviewRoute = require('./review.route');
+const serviceRoute = require('./service.route');
 const docsRoute = require('./docs.route');
 const config = require('../../config/config');
 
@@ -14,6 +19,26 @@ const defaultRoutes = [
   {
     path: '/users',
     route: userRoute,
+  },
+  {
+    path: '/tours',
+    route: tourRoute,
+  },
+  {
+    path: '/hotels',
+    route: hotelRoute,
+  },
+  {
+    path: '/bookings',
+    route: bookingRoute,
+  },
+  {
+    path: '/reviews',
+    route: reviewRoute,
+  },
+  {
+    path: '/services',
+    route: serviceRoute,
   },
 ];
 
