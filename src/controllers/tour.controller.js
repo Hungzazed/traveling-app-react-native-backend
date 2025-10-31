@@ -12,6 +12,15 @@ const createTour = catchAsync(async (req, res) => {
 const getTours = catchAsync(async (req, res) => {
   const filter = pick(req.query, ['destination', 'name']);
   const options = pick(req.query, ['sortBy', 'limit', 'page']);
+  
+  // Support price filtering in main getTours endpoint
+  if (req.query.minPrice || req.query.maxPrice) {
+    const priceFilter = {};
+    if (req.query.minPrice) priceFilter.$gte = Number(req.query.minPrice);
+    if (req.query.maxPrice) priceFilter.$lte = Number(req.query.maxPrice);
+    filter.pricePerPerson = priceFilter;
+  }
+  
   const result = await tourService.queryTours(filter, options);
   res.send(result);
 });

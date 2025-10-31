@@ -10,7 +10,7 @@ const createBooking = catchAsync(async (req, res) => {
 });
 
 const getBookings = catchAsync(async (req, res) => {
-  const filter = pick(req.query, ['userId', 'tourId', 'status', 'paymentStatus']);
+  const filter = pick(req.query, ['userId', 'tourId', 'status', 'paymentStatus', 'search']);
   const options = pick(req.query, ['sortBy', 'limit', 'page']);
   const result = await bookingService.queryBookings(filter, options);
   res.send(result);
@@ -42,7 +42,7 @@ const getMyBookings = catchAsync(async (req, res) => {
 });
 
 const cancelBooking = catchAsync(async (req, res) => {
-  const booking = await bookingService.cancelBooking(req.params.bookingId, req.user.id);
+  const booking = await bookingService.cancelBooking(req.params.bookingId, req.user.id, req.user.role);
   res.send(booking);
 });
 

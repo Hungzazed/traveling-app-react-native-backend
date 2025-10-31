@@ -21,6 +21,7 @@ const getBookings = {
     tourId: Joi.string().custom(objectId),
     status: Joi.string().valid('pending', 'confirmed', 'cancelled', 'completed'),
     paymentStatus: Joi.string().valid('unpaid', 'paid', 'refunded'),
+    search: Joi.string(),
     sortBy: Joi.string(),
     limit: Joi.number().integer(),
     page: Joi.number().integer(),

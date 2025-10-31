@@ -21,7 +21,20 @@ const createTour = async (tourBody) => {
  * @returns {Promise<QueryResult>}
  */
 const queryTours = async (filter, options) => {
-  const tours = await Tour.paginate(filter, options);
+  // Convert destination string to regex for partial matching
+  if (filter.destination && typeof filter.destination === 'string') {
+    filter.destination = { $regex: filter.destination, $options: 'i' };
+  }
+  
+  // Convert name string to regex for partial matching
+  if (filter.name && typeof filter.name === 'string') {
+    filter.name = { $regex: filter.name, $options: 'i' };
+  }
+  
+  const tours = await Tour.paginate(filter, {
+    ...options,
+    populate: 'hotels',
+  });
   return tours;
 };
 

@@ -6,6 +6,7 @@ const hotelRoute = require('./hotel.route');
 const bookingRoute = require('./booking.route');
 const reviewRoute = require('./review.route');
 const serviceRoute = require('./service.route');
+const notificationRoute = require('./notification.route');
 const docsRoute = require('./docs.route');
 const config = require('../../config/config');
 
@@ -39,6 +40,10 @@ const defaultRoutes = [
   {
     path: '/services',
     route: serviceRoute,
+  },
+  {
+    path: '/notifications',
+    route: notificationRoute,
   },
 ];
 
