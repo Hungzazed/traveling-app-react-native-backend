@@ -2,6 +2,7 @@ const httpStatus = require('http-status');
 const { Booking, User, Tour } = require('../models');
 const ApiError = require('../utils/ApiError');
 const notificationService = require('./notification.service');
+const emailService = require('./email.service');
 
 /**
  * Create a booking
@@ -15,7 +16,7 @@ const createBooking = async (userId, bookingBody) => {
     userId,
   });
   const populatedBooking = await booking.populate(['userId', 'tourId', 'hotelId', 'services']);
-  
+
   // Send notification to user about successful booking creation
   try {
     await notificationService.createBookingNotification(
@@ -29,7 +30,26 @@ const createBooking = async (userId, bookingBody) => {
   } catch (error) {
     console.error('Error sending booking creation notification:', error);
   }
-  
+
+  try {
+    const user = populatedBooking.userId;
+    const tour = populatedBooking.tourId;
+    const hotel = populatedBooking.hotelId;
+    await emailService.sendBookingConfirmationEmail(user.email, {
+      userName: user.name,
+      bookingId: populatedBooking._id.toString(),
+      tourName: tour?.name || 'Tour',
+      startDate: populatedBooking.startDate ? new Date(populatedBooking.startDate).toLocaleDateString('vi-VN') : '',
+      numberOfPeople: populatedBooking.numberOfPeople,
+      hotelName: hotel?.name || '',
+      totalPrice: populatedBooking.totalPrice,
+      status: populatedBooking.status,
+      paymentStatus: populatedBooking.paymentStatus,
+    });
+  } catch (error) {
+    console.error('Error sending booking confirmation email:', error);
+  }
+
   return populatedBooking;
 };
 
@@ -56,16 +76,16 @@ const queryBookings = async (filter, options) => {
         { phone: { $regex: search, $options: 'i' } },
       ],
     }).select('_id');
-    
+
     // Search in Tour collection
     const tours = await Tour.find({
       name: { $regex: search, $options: 'i' },
     }).select('_id');
-    
+
     // Add userId and tourId to filter with $or
     const userIds = users.map(u => u._id);
     const tourIds = tours.map(t => t._id);
-    
+
     if (userIds.length > 0 || tourIds.length > 0) {
       restFilter.$or = [];
       if (userIds.length > 0) {
@@ -113,11 +133,11 @@ const updateBookingById = async (bookingId, updateBody) => {
   if (!booking) {
     throw new ApiError(httpStatus.NOT_FOUND, 'Booking not found');
   }
-  
+
   const oldStatus = booking.status;
   Object.assign(booking, updateBody);
   await booking.save();
-  
+
   // Send notification if status changed to cancelled by admin
   if (oldStatus !== 'cancelled' && updateBody.status === 'cancelled') {
     try {
@@ -133,7 +153,7 @@ const updateBookingById = async (bookingId, updateBody) => {
       console.error('Error sending cancellation notification:', error);
     }
   }
-  
+
   return booking;
 };
 
@@ -163,26 +183,26 @@ const cancelBooking = async (bookingId, userId, userRole) => {
   if (!booking) {
     throw new ApiError(httpStatus.NOT_FOUND, 'Booking not found');
   }
-  
+
   console.log('🔍 Cancel booking debug:');
   console.log('  - bookingId:', bookingId);
   console.log('  - userId:', userId);
   console.log('  - userRole:', userRole);
   console.log('  - booking.userId:', booking.userId.toString());
   console.log('  - Match:', booking.userId.toString() === userId.toString());
-  
+
   // Admin can cancel any booking, user can only cancel their own
   if (userRole !== 'admin' && booking.userId.toString() !== userId.toString()) {
     throw new ApiError(httpStatus.FORBIDDEN, 'You can only cancel your own bookings');
   }
-  
+
   if (booking.status === 'cancelled' || booking.status === 'completed') {
     throw new ApiError(httpStatus.BAD_REQUEST, `Cannot cancel a ${booking.status} booking`);
   }
-  
+
   booking.status = 'cancelled';
   await booking.save();
-  
+
   // Send notification to user about booking cancellation
   try {
     const populatedBooking = await booking.populate(['userId', 'tourId']);
@@ -198,7 +218,7 @@ const cancelBooking = async (bookingId, userId, userRole) => {
   } catch (error) {
     console.error('Error sending booking cancellation notification:', error);
   }
-  
+
   return booking;
 };
 
@@ -217,7 +237,7 @@ const confirmBooking = async (bookingId) => {
   }
   booking.status = 'confirmed';
   await booking.save();
-  
+
   // Send notification to user
   try {
     await notificationService.createBookingNotification(
@@ -232,7 +252,21 @@ const confirmBooking = async (bookingId) => {
     console.error('Error sending confirmation notification:', error);
     // Don't fail the booking confirmation if notification fails
   }
-  
+
+  try {
+    const user = booking.userId;
+    const tour = booking.tourId;
+    await emailService.sendBookingStatusUpdateEmail(user.email, {
+      userName: user.name,
+      bookingId: booking._id.toString(),
+      tourName: tour?.name || 'Tour',
+      startDate: booking.startDate ? new Date(booking.startDate).toLocaleDateString('vi-VN') : '',
+      numberOfPeople: booking.numberOfPeople,
+    }, 'confirmed');
+  } catch (err) {
+    console.error('Error sending confirmation email:', err);
+  }
+
   return booking;
 };
 
