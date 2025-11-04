@@ -18,8 +18,18 @@ if (config.env !== 'test') {
  * @param {string} text
  * @returns {Promise}
  */
-const sendEmail = async (to, subject, text) => {
-  const msg = { from: config.email.from, to, subject, text };
+const sendEmail = async (to, subject, text, isHtml = false) => {
+    const msg = {
+    from: config.email.from,
+    to,
+    subject,
+  };
+
+  if (isHtml) {
+    msg.html = text;
+  } else {
+    msg.text = text;
+  }
   await transport.sendMail(msg);
 };
 
@@ -63,8 +73,48 @@ If you did not create an account, then ignore this email.`;
  */
 const sendBookingConfirmationEmail = async (to, bookingData) => {
   const subject = '🎉 Xác nhận đặt tour thành công - Travel App';
-  const text = `Xin chào ${bookingData.userName || ''},\n\nCảm ơn bạn đã đặt tour với chúng tôi!\n\nMã đặt tour: ${bookingData.bookingId}\nTour: ${bookingData.tourName}\nNgày khởi hành: ${bookingData.startDate || ''}\nSố người: ${bookingData.numberOfPeople || ''}\nTổng tiền: ${bookingData.totalPrice || ''}\n\nTrân trọng,\nTravel App Team`;
-  return sendEmail(to, subject, text);
+  
+  const html = `
+    <div style="font-family: Arial, sans-serif; background-color: #f7f7f7; padding: 20px;">
+      <div style="max-width: 600px; margin: auto; background-color: #ffffff; border-radius: 10px; overflow: hidden; box-shadow: 0 0 10px rgba(0,0,0,0.1);">
+        <div style="background-color: #4CAF50; color: white; padding: 20px; text-align: center;">
+          <h1>🎉 Xác nhận đặt tour thành công!</h1>
+        </div>
+        <div style="padding: 20px; color: #333;">
+          <p>Xin chào <strong>${bookingData.userName || ''}</strong>,</p>
+          <p>Cảm ơn bạn đã đặt tour với chúng tôi. Dưới đây là thông tin chi tiết về booking của bạn:</p>
+          <table style="width: 100%; border-collapse: collapse; margin-top: 10px;">
+            <tr>
+              <td style="padding: 10px; border: 1px solid #ddd;"><strong>Mã đặt tour:</strong></td>
+              <td style="padding: 10px; border: 1px solid #ddd;">${bookingData.bookingId}</td>
+            </tr>
+            <tr>
+              <td style="padding: 10px; border: 1px solid #ddd;"><strong>Tour:</strong></td>
+              <td style="padding: 10px; border: 1px solid #ddd;">${bookingData.tourName}</td>
+            </tr>
+            <tr>
+              <td style="padding: 10px; border: 1px solid #ddd;"><strong>Ngày khởi hành:</strong></td>
+              <td style="padding: 10px; border: 1px solid #ddd;">${bookingData.startDate || ''}</td>
+            </tr>
+            <tr>
+              <td style="padding: 10px; border: 1px solid #ddd;"><strong>Số người:</strong></td>
+              <td style="padding: 10px; border: 1px solid #ddd;">${bookingData.numberOfPeople || ''}</td>
+            </tr>
+            <tr>
+              <td style="padding: 10px; border: 1px solid #ddd;"><strong>Tổng tiền:</strong></td>
+              <td style="padding: 10px; border: 1px solid #ddd; color: #e91e63; font-weight: bold;">${bookingData.totalPrice || ''}</td>
+            </tr>
+          </table>
+          <p style="margin-top: 20px;">Trân trọng,<br/><strong>Travel App Team</strong></p>
+        </div>
+        <div style="background-color: #f1f1f1; color: #555; padding: 10px; text-align: center; font-size: 12px;">
+          Đây là email tự động, vui lòng không trả lời.
+        </div>
+      </div>
+    </div>
+  `;
+  
+  return sendEmail(to, subject, html, true);
 };
 
 /**
