@@ -113,7 +113,7 @@ const sendBookingConfirmationEmail = async (to, bookingData) => {
       </div>
     </div>
   `;
-  
+
   return sendEmail(to, subject, html, true);
 };
 
@@ -202,7 +202,7 @@ const sendBookingStatusUpdateEmail = async (to, bookingData, status) => {
         </div>
       `;
   }
-  return sendEmail(to, subject, html);
+  return sendEmail(to, subject, html, true);
 };
 
 
