@@ -7,3 +7,4 @@ module.exports.hotelService = require('./hotel.service');
 module.exports.bookingService = require('./booking.service');
 module.exports.reviewService = require('./review.service');
 module.exports.serviceService = require('./service.service');
+module.exports.notificationService = require('./notification.service');

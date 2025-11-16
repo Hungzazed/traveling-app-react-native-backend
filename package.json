@@ -1,18 +1,18 @@
 {
-  "name": "create-nodejs-express-app",
-  "version": "1.7.0",
-  "description": "Create a Node.js app for building production-ready RESTful APIs using Express, by running one command",
+  "name": "travel-app",
+  "version": "1.0.0",
+  "description": "Create a Node.js app for building production-ready RESTful APIs using Express",
   "bin": "bin/createNodejsApp.js",
   "main": "src/index.js",
-  "repository": "https://github.com/hagopj13/node-express-boilerplate.git",
-  "author": "Hagop Jamkojian <hagopj13@gmail.com>",
+  "repository": "https://github.com/Hungzazed/traveling-app-react-native-backend",
+  "author": "hungzaze <phihung0168@gmail.com>",
   "license": "MIT",
   "engines": {
-    "node": ">=12.0.0"
+    "node": "20.x"
   },
   "scripts": {
-    "start": "pm2 start ecosystem.config.json --no-daemon",
-    "dev": "cross-env NODE_ENV=development nodemon src/index.js",
+    "start": "node src/index.js",
+    "dev": "nodemon src/index.js",
     "test": "jest -i --colors --verbose --detectOpenHandles",
     "test:watch": "jest -i --watchAll",
     "coverage": "jest -i --coverage",
@@ -24,7 +24,8 @@
     "docker:prod": "docker-compose -f docker-compose.yml -f docker-compose.prod.yml up",
     "docker:dev": "docker-compose -f docker-compose.yml -f docker-compose.dev.yml up",
     "docker:test": "docker-compose -f docker-compose.yml -f docker-compose.test.yml up",
-    "prepare": "husky install"
+    "prepare": "husky install",
+    "seed": "node src/seeds/seed.js"
   },
   "keywords": [
     "node",

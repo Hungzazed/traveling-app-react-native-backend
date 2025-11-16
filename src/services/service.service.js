@@ -21,7 +21,13 @@ const createService = async (serviceBody) => {
  * @returns {Promise<QueryResult>}
  */
 const queryServices = async (filter, options) => {
-  const services = await Service.paginate(filter, options);
+  // Convert name filter to regex for partial, case-insensitive search
+  const query = { ...filter };
+  if (query.name) {
+    query.name = { $regex: query.name, $options: 'i' };
+  }
+  
+  const services = await Service.paginate(query, options);
   return services;
 };
 
